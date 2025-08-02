@@ -9,7 +9,7 @@ public final class JSONStoreConfiguration: DataStoreConfiguration {
     public var schema: Schema?
     public let fileURL: URL
 
-    init(name: String, schema: Schema? = nil, fileURL: URL) {
+    public init(name: String, schema: Schema? = nil, fileURL: URL) {
         self.name = name
         self.schema = schema
         self.fileURL = fileURL

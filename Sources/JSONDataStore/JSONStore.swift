@@ -28,7 +28,9 @@ public final class JSONStore: DataStore {
         
         let snapshots = try read()
 
-        return DataStoreFetchResult(descriptor: request.descriptor, fetchedSnapshots: snapshots)
+        let filteredSnapshots = snapshots.filter({ $0.persistentIdentifier.entityName == "\(T.self)"})
+        
+        return DataStoreFetchResult(descriptor: request.descriptor, fetchedSnapshots: filteredSnapshots)
     }
 
     public func save(_ request: DataStoreSaveChangesRequest<Snapshot>) throws -> DataStoreSaveChangesResult<Snapshot> {
