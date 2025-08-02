@@ -42,16 +42,27 @@ public final class JSONStore: DataStore {
         // Temporary to permanent identifier map
         var remappedIdentifiers = [PersistentIdentifier: PersistentIdentifier]()
         
+        // Create remapping of temp to permanent identifiers first
         for snapshot in request.inserted {
             let entityName = snapshot.persistentIdentifier.entityName
             let permanentIdentifier = try PersistentIdentifier.identifier(for: identifier, entityName: entityName, primaryKey: UUID())
-            let snapshotCopy = snapshot.copy(persistentIdentifier: permanentIdentifier)
             remappedIdentifiers[snapshot.persistentIdentifier] = permanentIdentifier
+        }
+        
+        // Make copies of snapshots with the new permanent identifiers passing remapping into copy
+        for snapshot in request.inserted {
+            guard let permanentIdentifier = remappedIdentifiers[snapshot.persistentIdentifier] else {
+                print("Can't find permanent identifier for \(snapshot.persistentIdentifier)")
+                continue
+            }
+            let snapshotCopy = snapshot.copy(persistentIdentifier: permanentIdentifier, remappedIdentifiers: remappedIdentifiers)
             snapshotsByIdentifier[permanentIdentifier] = snapshotCopy
         }
         
+        // We need to make copies of updates passing in remapped identifiers so relationships can be updated
         for snapshot in request.updated {
-            snapshotsByIdentifier[snapshot.persistentIdentifier] = snapshot
+            let persistentIdentifier = snapshot.persistentIdentifier
+            snapshotsByIdentifier[persistentIdentifier] = snapshot.copy(persistentIdentifier: persistentIdentifier, remappedIdentifiers: remappedIdentifiers)
         }
         
         for snapshot in request.deleted {
