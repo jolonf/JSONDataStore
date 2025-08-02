@@ -11,7 +11,7 @@ import SwiftData
 import JSONDataStore
 
 let configuration = JSONStoreConfiguration(schema: Schema([Trip.self]), url: fileURL)
-let container = ModelContainer(for: Trip.self, configurations: configuration)
+let container = try ModelContainer(for: Trip.self, configurations: configuration)
 ```
 
 ## Key classes
